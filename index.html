@@ -27,7 +27,7 @@ class: center, middle
 .lhs[
 
 * Intro and overview
-  * [Check your setup](#prep)
+  * [Setup and installation](#prep)
   * [Hello world!](#hello-world)
   * [Key concepts](#key-concepts)
   * [Containers vs Virtual Machines](#containers-vs-vms)
@@ -36,7 +36,7 @@ class: center, middle
 * Containers
   * [Ports](#ports)
   * [Environment variables](#environment)
-  * [Networks](#networks)
+  * <strike>[Networks](#networks)</strike>
   * [Volumes](#volumes)
 
 ]
@@ -49,67 +49,31 @@ class: center, middle
   * [Publishing images](#publishing-images)
   * [Runtime hints](#runtime-hints)
 
-* [Security](#security)
+  * <strike>[Security](#security)</strike>
 
-* [Docker Compose](#compose)
+  * <strike>[Docker Compose](#compose)</strike>
 
 ]
 
 ---
 name: prep
-# Preparation
+# Docker installation on AWS
 
-You will need **a good connection to the internet** during this setup, and
-(to some extent) while going through the course, as we'll be installing
-software, and downloading Docker "images".
-
-It's useful to have **a local copy of these training materials**:
-
-  `git clone https://github.com/realestate-com-au/intro-to-docker.git`
-
-You definitely need **Docker and Docker Compose**.<br/>
-Installation intructions follow.
-
----
-# Installing Docker
-
-#### OS X
-
-* Install [Docker for Mac](https://docs.docker.com/docker-for-mac/)
-
-#### Windows
-
-* Install [Docker for Windows](https://docs.docker.com/docker-for-windows/)
-
-#### Linux
+- Create a new instance on AWS
+- SSH into the instance
+- Run the following:
 
 ```
-$ `curl -sSL https://get.docker.com/ | sh`
+sudo yum update -y
+sudo yum install -y docker
+sudo service docker start
+sudo usermod -a -G docker ec2-user
 ```
 
----
-# Check your setup
+- logout and back into instance
+- then run:
 
-Let's check that everything is working:
-
-```
-$ `./setup.sh`
-YAY: /var/run/docker.sock exists
-YAY: I can talk to docker
-Docker is at localhost
-
-YAY: docker version 1.12.0
-YAY: docker-compose version 1.8.0
-
-Pulling some images to get you started ...
-```
-
-Not working? Ask for help!
-
-.small.lhs[
-Don't worry _too_ much if you get complaints about versions of `docker`
-and `docker-compose`; _most_ things will _probably_ still work.)
-]
+`docker info`
 
 ---
 # Docker Engine
@@ -124,6 +88,7 @@ and `docker-compose`; _most_ things will _probably_ still work.)
 Docker only runs on Linux.
 
 On OS X and Windows, it runs inside a VM.
+(although Windows Server can now run Docker)
 
 ---
 class: center, middle
@@ -132,21 +97,15 @@ class: center, middle
 ---
 # Why would I even Docker?
 
---
-
 It's:
 
 * a way to package code, to run it elsewhere
   * so you can easily distribute your software
 
---
-
 And it's:
 
 * a way to control the (OS) environment your program runs within
   * so you can run it "anywhere", with confidence
-
---
 
 And also:
 
@@ -347,21 +306,27 @@ Linux "cgroups" + "image" management =
 ![Docker](media/docker/small_v-trans.png)
 
 ---
-# Linux "control groups"
+# Linux "control groups" and "namespaces"
 
-</br>
+.lhs[
+### Namespaces:
 
-Isolate processes by limiting access to:
-  - hardware resources
-  - other processes
+Isolate:
+  - Process Ids
+  - network resources
+  - IPC resources
+  - file system mount points
+]
+--
+.rhs[
+### Control Groups:
 
-Not a new idea:
-  * aka LXC
-  * project started by Google
-  * used extensively by PaaS such as Heroku
-  * similar to Solaris Zones, BSD Jails
-
-Similar to how `chroot` limits access to the file system, but for resources.
+Allocate:
+  - Memory Resources
+  - CPU resources
+  - I/O resources
+  - Network traffic throughput
+]
 
 ---
 # Union file systems
