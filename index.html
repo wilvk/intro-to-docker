@@ -25,18 +25,22 @@ class: center, middle
 # Agenda
 
 .lhs[
-
+<table>
+	<tr>
+		<td style="background: #D3FAFF">
 * Intro and overview
   * [Setup and installation](#prep)
   * [Hello world!](#hello-world)
   * [Key concepts](#key-concepts)
   * [Containers vs Virtual Machines](#containers-vs-vms)
   * [The clever bits](#the-clever-bits)
-
+		</td>
+	</tr>
+</table>
 * Containers
   * [Ports](#ports)
   * [Environment variables](#environment)
-  * <strike>[Networks](#networks)</strike>
+  * [Networks](#networks)
   * [Volumes](#volumes)
 
 ]
@@ -49,9 +53,9 @@ class: center, middle
   * [Publishing images](#publishing-images)
   * [Runtime hints](#runtime-hints)
 
-  * <strike>[Security](#security)</strike>
+  * [Security](#security)
 
-  * <strike>[Docker Compose](#compose)</strike>
+  * [Docker Compose](#compose)
 
 ]
 
@@ -64,16 +68,18 @@ name: prep
 - Run the following:
 
 ```
-sudo yum update -y
-sudo yum install -y docker
-sudo service docker start
-sudo usermod -a -G docker ec2-user
+$ `sudo yum update -y`
+$ `sudo yum install -y docker`
+$ `sudo service docker start`
+$ `sudo usermod -a -G docker ec2-user`
 ```
 
 - logout and back into instance
 - then run:
 
-`docker info`
+```
+$ `docker info`
+```
 
 ---
 # Docker Engine
@@ -251,7 +257,7 @@ With Docker, processes communicate directly with the host kernel.
 
 ---
 # More containers vs. VMs
-
+</br></br>
 <table class="compare">
   <tr>
     <td></td>
@@ -313,9 +319,9 @@ Linux "cgroups" + "image" management =
 
 Isolate:
   - Process Ids
-  - network resources
+  - Network resources
   - IPC resources
-  - file system mount points
+  - File system mount points
 ]
 --
 .rhs[
@@ -325,7 +331,7 @@ Allocate:
   - Memory Resources
   - CPU resources
   - I/O resources
-  - Network traffic throughput
+  - Network traffic tagging
 ]
 
 ---
@@ -392,6 +398,58 @@ IMAGE               CREATED             CREATED BY
 <missing>           2 days ago          /bin/sh -c #(nop) ADD file:b
 
 ```
+
+---
+# Creating a Dockerfile
+
+```
+FROM ubuntu:16.04
+
+# Install dependencies
+RUN apt-get update
+RUN apt-get -y install apache2
+
+# Install apache and write hello world message
+RUN echo 'Hello World!' > /var/www/html/index.html
+
+# Configure apache
+RUN echo '. /etc/apache2/envvars' > /root/run_apache.sh
+RUN echo 'mkdir -p /var/run/apache2' >> /root/run_apache.sh
+RUN echo 'mkdir -p /var/lock/apache2' >> /root/run_apache.sh
+RUN echo '/usr/sbin/apache2 -D FOREGROUND' >> /root/run_apache.sh
+RUN chmod 755 /root/run_apache.sh
+
+EXPOSE 80
+
+CMD /root/run_apache.sh
+```
+</br>
+Ref: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html
+---
+# Building and running a Dockerfile
+</br>
+</br>
+Build:
+```
+$ `docker build -t hello-world .`
+```
+
+</br>
+Find:
+```
+$ `docker images --filter reference=hello-world`
+```
+
+</br>
+Run:
+```
+$ `docker run -d -p 80:80 hello-world`
+```
+---
+class: middle, center
+# Thank-you
+
+That's all for today.
 
 ---
 class: middle, center
